@@ -1,0 +1,58 @@
+Table users {
+  id int [pk, increment]
+  name varchar(255) [not null]
+  surname varchar(255) [not null]
+  address varchar(255) [not null]
+  phone varchar(255) [not null]
+  city int [ref: > cities.id]
+  email varchar(255) [not null]
+  password varchar(255) [not null]
+  student_level int [ref: > student_level.id]
+}
+
+Table user_formation_programs {
+  id int [pk, increment]
+  formation_programs int [ref: > formation_programs.id]
+  user int [ref: > users.id] 
+}
+
+Table user_roles {
+  id int [pk, increment]
+  name varchar(255) [not null]
+  user int [ref: > users.id]
+  role int [ref: > user_roles_base.id]
+}
+
+Table user_roles_base {
+  id int [pk, increment]
+  name varchar(255) [not null]
+}
+
+Table cities {
+  id int [pk, increment]
+  name varchar(255) [not null]
+}
+
+Table courses {
+  id int [pk, increment]
+  name varchar(255) [not null]
+}
+
+Table student_level {
+  id int [pk, increment]
+  name varchar(255) [not null]
+}
+
+Table headquarters {
+  id int [pk, increment]
+  name varchar(255) [not null]
+}
+
+Table formation_programs {
+  id int [pk, increment]
+  instructor int [ref: > users.id]
+  course int [ref: > courses.id]
+  headquarter int [ref: > headquarters.id] 
+}
+
+
