@@ -27,6 +27,14 @@
     }
     ?>
 
+    <?php
+    if (isset($_GET['id'])) {
+      if (isset($_GET['delete'])) {
+        delete('cities', 'id', $_GET['id']);
+      }
+    }
+    ?>
+
     <form action="" method="post">
       <label for="name">Name</label>
       <input type="text" name="name" id="name">
@@ -50,8 +58,13 @@
           <div><?php echo $row->id ?></div>
           <div><?php echo $row->name ?></div>
           <div class="actions">
-            <a href="">Modify</a>
-            <a href="">Delete</a>
+            <a href="cities?id=<?php echo $row->id ?>&put">
+              Modify
+            </a>
+
+            <a href="cities?id=<?php echo $row->id ?>&delete">
+              Delete
+            </a>
           </div>
         <?php } ?>
       </div>

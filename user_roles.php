@@ -28,9 +28,9 @@
     if (isset($_POST['submit'])) {
       if (isset($_GET['put'])) {
         $id = $_GET['id'];
-        $result = selectId('user_roles', 'id', $id);
+        $user = $_GET['user'];
 
-        $field = array("id" => $id, "user" => $row->user, "role" => $_POST['role']);
+        $field = array("id" => $id, "user" => $user, "role" => $_POST['role']);
 
         modify("user_roles", $field, 'id', $id);
       } else {
@@ -56,9 +56,7 @@
                                       echo 'disabled';
                                     } ?>>
         <?php
-        $__sql = "SELECT * FROM users";
-
-        $__results = dbQuery($__sql);
+        $__results = dbQuery("SELECT * FROM users");
 
         while ($_row = mysqli_fetch_object($__results)) {
         ?>
@@ -69,9 +67,7 @@
       <label for="role">Role</label>
       <select name="role" id="role">
         <?php
-        $_sql = "SELECT * FROM user_roles_base";
-
-        $_results = dbQuery($_sql);
+        $_results = dbQuery("SELECT * FROM user_roles_base");
 
         while ($_row = mysqli_fetch_object($_results)) {
         ?>
@@ -79,11 +75,7 @@
         <?php } ?>
       </select>
 
-      <input type="submit" name="submit" value="<?php if (isset($_GET['put'])) {
-                                                  echo 'Edit role';
-                                                } else {
-                                                  echo 'Assign role to user';
-                                                } ?>
+      <input type="submit" name="submit" value="<?php echo isset($_GET['put']) ? 'Edit role' : 'Assign role to user' ?>
       ">
     </form>
 
@@ -95,21 +87,19 @@
         <div>Actions</div>
 
         <?php
-        $sql = "SELECT *, u.name AS user_name FROM user_roles AS ur JOIN users AS u ON ur.user = u.id JOIN user_roles_base AS urb ON ur.role = urb.id";
-
-        $result = dbQuery($sql);
+        $result = dbQuery("SELECT *, ur.id AS user_roles_id, u.name AS user_name FROM user_roles AS ur JOIN users AS u ON ur.user = u.id JOIN user_roles_base AS urb ON ur.role = urb.id");
 
         while ($row = mysqli_fetch_object($result)) {
         ?>
-          <div class="row"><?php echo $row->id ?></div>
+          <div class="row"><?php echo $row->user_roles_id ?></div>
           <div class="row"><?php echo $row->user_name ?></div>
           <div class="row"><?php echo $row->name ?></div>
           <div class="actions">
-            <a href="user_roles?id=<?php echo $row->id ?>&put">
+            <a href="user_roles?id=<?php echo $row->user_roles_id ?>&put">
               Modify
             </a>
 
-            <a href="user_roles?id=<?php echo $row->id ?>&delete">
+            <a href="user_roles?id=<?php echo $row->user_roles_id ?>&delete">
               Delete
             </a>
           </div>

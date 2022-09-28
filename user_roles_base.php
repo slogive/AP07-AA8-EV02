@@ -15,6 +15,14 @@
   include("./modules/nav.php");
   ?>
 
+  <?php
+  if (isset($_GET['id'])) {
+    if (isset($_GET['delete'])) {
+      delete('user_roles_base', 'id', $_GET['id']);
+    }
+  }
+  ?>
+
   <main class="main">
     <?php
     if (isset($_POST['submit'])) {
@@ -49,8 +57,13 @@
           <div class="row"><?php echo $row->id ?></div>
           <div class="row"><?php echo $row->name ?></div>
           <div class="actions">
-            <a href="">Modify</a>
-            <a href="">Delete</a>
+            <a href="user_roles_base?id=<?php echo $row->id ?>&put">
+              Modify
+            </a>
+
+            <a href="user_roles_base?id=<?php echo $row->id ?>&delete">
+              Delete
+            </a>
           </div>
         <?php } ?>
       </div>

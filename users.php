@@ -1,7 +1,3 @@
-<?php
-error_reporting(E_ALL);
-?>
-
 <!DOCTYPE html>
 <html lang="es-CO">
 
@@ -25,6 +21,14 @@ error_reporting(E_ALL);
       $field = array("name" => $_POST['name'], "surname" => $_POST['surname'], "address" => $_POST['address'], "phone" => $_POST['phone'], "city" => $_POST['city'], "email" => $_POST['email'], "password" => $_POST['password'], "student_level" => $_POST['student_level']);
 
       insert("users", $field);
+    }
+    ?>
+
+    <?php
+    if (isset($_GET['id'])) {
+      if (isset($_GET['delete'])) {
+        delete('users', 'id', $_GET['id']);
+      }
     }
     ?>
 
@@ -89,7 +93,7 @@ error_reporting(E_ALL);
         <div class="header">Actions</div>
 
         <?php
-        $sql = "SELECT * FROM users";
+        $sql = "SELECT *, c.name AS city, sl.name AS student_level FROM users AS u JOIN cities AS c ON u.city = c.id JOIN student_levels AS sl ON u.student_level = sl.id";
 
         $result = dbQuery($sql);
 
@@ -104,8 +108,13 @@ error_reporting(E_ALL);
           <div class="row"><?php echo $row->email ?></div>
           <div class="row"><?php echo $row->student_level ?></div>
           <div class="actions">
-            <a href="">Modify</a>
-            <a href="">Delete</a>
+            <a href="users?id=<?php echo $row->id ?>&put">
+              Modify
+            </a>
+
+            <a href="users?id=<?php echo $row->id ?>&delete">
+              Delete
+            </a>
           </div>
         <?php } ?>
       </div>
