@@ -1,4 +1,19 @@
-$pad: 8px;
-$gap: 8px;
-$radius: $gap;
+:root {
+  --measure: 16px;
+}
+
+@media screen and (min-width: 769px) {
+  :root {
+    --measure: 16px;
+  }
+}
+
+$pad: var(--measure);
+$gap: $pad;
+$radius: 8px;
 $time: 150ms;
+
+$green: #59ad6a;
+$red: #e2574c;
+$blue: #59bacc;
+$orange: #ffbb49;

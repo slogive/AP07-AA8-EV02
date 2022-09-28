@@ -1,3 +1,7 @@
+<?php
+$table = 'users';
+?>
+
 <!DOCTYPE html>
 <html lang="es-CO">
 
@@ -17,67 +21,89 @@
 
   <main class="main">
     <?php
-    if (isset($_POST['submit'])) {
-      $field = array("name" => $_POST['name'], "surname" => $_POST['surname'], "address" => $_POST['address'], "phone" => $_POST['phone'], "city" => $_POST['city'], "email" => $_POST['email'], "password" => $_POST['password'], "student_level" => $_POST['student_level']);
-
-      insert("users", $field);
+    if (isset($_GET['put'])) {
+      $id = $_GET['id'];
+      selectId($table, 'id', $id);
     }
     ?>
 
     <?php
     if (isset($_GET['id'])) {
       if (isset($_GET['delete'])) {
-        delete('users', 'id', $_GET['id']);
+        delete($table, 'id', $_GET['id']);
+      }
+    }
+    ?>
+
+    <?php
+    if (isset($_POST['submit'])) {
+      if (isset($_GET['put'])) {
+        $id = $_GET['id'];
+        $field = array("id" => $id, "name" => $_POST['name'], "surname" => $_POST['surname'], "address" => $_POST['address'], "phone" => $_POST['phone'], "city" => $_POST['city'], "email" => $_POST['email'], "password" => $_POST['password'], "student_level" => $_POST['student_level']);
+
+        modify("users", $field, 'id', $id);
+
+        header("Location: users");
+      } else {
+        $field = array("name" => $_POST['name'], "surname" => $_POST['surname'], "address" => $_POST['address'], "phone" => $_POST['phone'], "city" => $_POST['city'], "email" => $_POST['email'], "password" => $_POST['password'], "student_level" => $_POST['student_level']);
+
+        insert("users", $field);
       }
     }
     ?>
 
     <form action="" method="post">
       <label for="name">Name</label>
-      <input type="text" name="name" id="name">
+      <input type="text" name="name" id="name" value="<?php echo isset($_GET['put']) ? $row->name : ''; ?>" placeholder="Milton">
 
       <label for="surname">Surname</label>
-      <input type="text" name="surname" id="surname">
+      <input type="text" name="surname" id="surname" value="<?php echo isset($_GET['put']) ? $row->surname : ''; ?>" placeholder="Moncada">
 
       <label for="address">Address</label>
-      <input type="text" name="address" id="address">
+      <input type="text" name="address" id="address" value="<?php echo isset($_GET['put']) ? $row->address : ''; ?>" placeholder="MZ B CS # 12">
 
       <label for="phone">Phone</label>
-      <input type="text" name="phone" id="phone">
+      <input type="text" name="phone" id="phone" value="<?php echo isset($_GET['put']) ? $row->phone : ''; ?>" placeholder="3045903445">
 
       <label for="city">City</label>
       <select name="city" id="city">
         <?php
-        $_sql = "SELECT * FROM cities";
+        $__results = dbQuery("SELECT * FROM cities");
 
-        $_results = dbQuery($_sql);
+        while ($_row = mysqli_fetch_object($__results)) {
+          $selected = isset($row->city) && $_row->id == $row->city ? 'selected' : '';
 
-        while ($_row = mysqli_fetch_object($_results)) {
+          echo "<option value='$_row->city' $selected>$_row->name</option>";
+        }
         ?>
-          <option value="<?php echo $_row->id ?>"><?php echo $_row->name ?></option>
-        <?php } ?>
       </select>
 
       <label for="email">Email</label>
-      <input type="text" name="email" id="email">
+      <input type="text" name="email" id="email" value="<?php echo isset($_GET['put']) ? $row->email : ''; ?>" placeholder="milton@email.com">
 
       <label for="password">Password</label>
-      <input type="password" name="password" id="password">
+      <input type="password" name="password" id="password" value="<?php echo isset($_GET['put']) ? $row->password : ''; ?>" placeholder="123456789">
 
       <label for="student_level">Student Level</label>
       <select name="student_level" id="student_level">
         <?php
-        $__sql = "SELECT * FROM student_levels";
+        $__results = dbQuery("SELECT * FROM student_levels");
 
-        $__results = dbQuery($__sql);
+        while ($_row = mysqli_fetch_object($__results)) {
+          $selected = isset($row->student_level) && $_row->id == $row->student_level ? 'selected' : '';
 
-        while ($__row = mysqli_fetch_object($__results)) {
+          echo "<option value='$_row->id' $selected>$_row->name</option>";
+        }
         ?>
-          <option value="<?php echo $__row->id ?>"><?php echo $__row->name ?></option>
-        <?php } ?>
       </select>
 
-      <input type="submit" name="submit" value="Create user">
+      <div class="form_actions">
+        <?php echo isset($_GET['put']) ?
+          '<input type="submit" name="submit" value="Edit user"><input onclick="cancel(\'users\')" type="button" value="Cancel">'
+          :
+          '<input type="submit" name="submit" value="Create user">'
+        ?>
+      </div>
     </form>
 
     <div class="table">
@@ -93,7 +119,7 @@
         <div class="header">Actions</div>
 
         <?php
-        $sql = "SELECT *, c.name AS city, sl.name AS student_level FROM users AS u JOIN cities AS c ON u.city = c.id JOIN student_levels AS sl ON u.student_level = sl.id";
+        $sql = "SELECT *, u.id AS id, u.name AS name, c.id AS city_id, c.name AS city, sl.id AS student_level_id, sl.name AS student_level FROM users AS u JOIN cities AS c ON u.city = c.id JOIN student_levels AS sl ON u.student_level = sl.id";
 
         $result = dbQuery($sql);
 
@@ -108,7 +134,7 @@
           <div class="row"><?php echo $row->email ?></div>
           <div class="row"><?php echo $row->student_level ?></div>
           <div class="actions">
-            <a href="users?id=<?php echo $row->id ?>&put">
+            <a href="?id=<?php echo $row->id ?>&put">
               Modify
             </a>
 

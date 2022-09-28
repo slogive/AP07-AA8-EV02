@@ -1,3 +1,7 @@
+<?php
+$table = 'user_formation_programs';
+?>
+
 <!DOCTYPE html>
 <html lang="es-CO">
 
@@ -7,7 +11,7 @@
   include("./php/function.php");
   ?>
 
-  <title></title>
+  <title>Users in programs</title>
 </head>
 
 <body>
@@ -17,19 +21,33 @@
 
   <main class="main">
     <?php
-    if (isset($_POST['submit'])) {
-      $field = array("formation_program" => $_POST['formation_program'], "user" => $_POST['user']);
-
-      $tbl = "user_formation_programs";
-
-      insert($tbl, $field);
+    if (isset($_GET['put'])) {
+      $id = $_GET['id'];
+      selectId($table, 'id', $id);
     }
     ?>
 
     <?php
     if (isset($_GET['id'])) {
       if (isset($_GET['delete'])) {
-        delete('user_formation_programs', 'id', $_GET['id']);
+        delete($table, 'id', $_GET['id']);
+      }
+    }
+    ?>
+
+    <?php
+    if (isset($_POST['submit'])) {
+      if (isset($_GET['put'])) {
+        $id = $_GET['id'];
+        $field = array("id" => $id, "formation_program" => $_POST['formation_program'], "user" => $_POST['user']);
+
+        modify("user_formation_programs", $field, 'id', $id);
+
+        header("Location: users");
+      } else {
+        $field = array("formation_program" => $_POST['formation_program'], "user" => $_POST['user']);
+
+        insert("user_formation_programs", $field);
       }
     }
     ?>
@@ -38,30 +56,36 @@
       <label for="formation_program">Formation Program</label>
       <select name="formation_program" id="formation_program">
         <?php
-        $_sql = "SELECT * FROM formation_programs";
+        $__results = dbQuery("SELECT * FROM formation_programs");
 
-        $_results = dbQuery($_sql);
+        while ($_row = mysqli_fetch_object($__results)) {
+          $selected = isset($row->formation_program) && $_row->id == $row->formation_program ? 'selected' : '';
 
-        while ($_row = mysqli_fetch_object($_results)) {
+          echo "<option value='$_row->id' $selected>$_row->name</option>";
+        }
         ?>
-          <option value="<?php echo $_row->id ?>"><?php echo $_row->name ?></option>
-        <?php } ?>
       </select>
 
       <label for="user">User</label>
       <select name="user" id="user">
         <?php
-        $__sql = "SELECT * FROM users";
-
-        $__results = dbQuery($__sql);
+        $__results = dbQuery("SELECT * FROM users");
 
         while ($_row = mysqli_fetch_object($__results)) {
+          $selected = isset($row->user) && $_row->id == $row->user ? 'selected' : '';
+
+          echo "<option value='$_row->id' $selected>$_row->name</option>";
+        }
         ?>
-          <option value="<?php echo $_row->id ?>"><?php echo $_row->name ?></option>
-        <?php } ?>
       </select>
 
-      <input type="submit" name="submit" value="Add user to Formation Program">
+      <div class="form_actions">
+        <?php echo isset($_GET['put']) ?
+          '<input type="submit" name="submit" value="Edit Formation Program for user"><input onclick="cancel(\'user_formation_programs\')" type="button" value="Cancel">'
+          :
+          '<input type="submit" name="submit" value="Add user to Formation Program">'
+        ?>
+      </div>
     </form>
 
     <div class="table">
@@ -72,19 +96,19 @@
         <div class="header">Actions</div>
 
         <?php
-        $result = dbQuery("SELECT *, ufp.id AS ufp_id, u.id AS user_id, u.name AS user_name FROM user_formation_programs AS ufp JOIN users AS u ON ufp.user = u.id JOIN formation_programs AS fp ON ufp.formation_program = fp.id");
+        $result = dbQuery("SELECT *, ufp.id AS id, u.id AS user_id, u.name AS user_name FROM user_formation_programs AS ufp JOIN users AS u ON ufp.user = u.id JOIN formation_programs AS fp ON ufp.formation_program = fp.id");
 
         while ($row = mysqli_fetch_object($result)) {
         ?>
-          <div><?php echo $row->ufp_id ?></div>
+          <div><?php echo $row->id ?></div>
           <div><?php echo $row->name ?></div>
           <div><?php echo $row->user_name ?></div>
           <div class="actions">
-            <a href="user_formation_programs?id=<?php echo $row->ufp_id ?>&user_id=<?php $row->user_id ?>&put">
+            <a href="user_formation_programs?id=<?php echo $row->id ?>&user_id=<?php $row->user_id ?>&put">
               Modify
             </a>
 
-            <a href="user_formation_programs?id=<?php echo $row->ufp_id ?>&delete">
+            <a href="user_formation_programs?id=<?php echo $row->id ?>&delete">
               Delete
             </a>
           </div>

@@ -1,3 +1,7 @@
+<?php
+$table = 'formation_programs';
+?>
+
 <!DOCTYPE html>
 <html lang="es-CO">
 
@@ -7,7 +11,7 @@
   include("./php/function.php");
   ?>
 
-  <title></title>
+  <title>Formation Programs</title>
 </head>
 
 <body>
@@ -17,19 +21,33 @@
 
   <main class="main">
     <?php
-    if (isset($_POST['submit'])) {
-      $field = array("instructor" => $_POST['instructor'], "course" => $_POST['course'], "headquarter" => $_POST['headquarter']);
-
-      $tbl = "formation_programs";
-
-      insert($tbl, $field);
+    if (isset($_GET['put'])) {
+      $id = $_GET['id'];
+      selectId($table, 'id', $id);
     }
     ?>
 
     <?php
     if (isset($_GET['id'])) {
       if (isset($_GET['delete'])) {
-        delete('formation_programs', 'id', $_GET['id']);
+        delete($table, 'id', $_GET['id']);
+      }
+    }
+    ?>
+
+    <?php
+    if (isset($_POST['submit'])) {
+      if (isset($_GET['put'])) {
+        $id = $_GET['id'];
+        $field = array("id" => $id, "instructor" => $_POST['instructor'], "name" => $_POST["name"], "course" => $_POST['course'], "headquarter" => $_POST['headquarter']);
+
+        modify("formation_programs", $field, 'id', $id);
+
+        header("Location: users");
+      } else {
+        $field = array("instructor" => $_POST['instructor'], "name" => $_POST["name"], "course" => $_POST['course'], "headquarter" => $_POST['headquarter']);
+
+        insert("formation_programs", $field);
       }
     }
     ?>
@@ -38,46 +56,52 @@
       <label for="instructor">Instructor</label>
       <select name="instructor" id="instructor">
         <?php
-        $_sql = "SELECT * FROM users";
+        $__results = dbQuery("SELECT * FROM users");
 
-        $_results = dbQuery($_sql);
+        while ($_row = mysqli_fetch_object($__results)) {
+          $selected = isset($row->instructor) && $_row->id == $row->instructor ? 'selected' : '';
 
-        while ($_row = mysqli_fetch_object($_results)) {
+          echo "<option value='$_row->id' $selected>$_row->name</option>";
+        }
         ?>
-          <option value="<?php echo $_row->id ?>"><?php echo $_row->name ?></option>
-        <?php } ?>
       </select>
 
-      <label for="name">Course</label>
-      <input type="text" name="name" id="name">
+      <label for="name">Name</label>
+      <input type="text" name="name" id="name" value="<?php echo isset($_GET['put']) ? $row->name : ''; ?>" placeholder="Sofware">
 
       <label for="course">Course</label>
       <select name="course" id="course">
         <?php
-        $__sql = "SELECT * FROM courses";
-
-        $__results = dbQuery($__sql);
+        $__results = dbQuery("SELECT * FROM courses");
 
         while ($_row = mysqli_fetch_object($__results)) {
+          $selected = isset($row->course) && $_row->id == $row->course ? 'selected' : '';
+
+          echo "<option value='$_row->id' $selected>$_row->name</option>";
+        }
         ?>
-          <option value="<?php echo $_row->id ?>"><?php echo $_row->name ?></option>
-        <?php } ?>
       </select>
 
       <label for="headquarter">Headquarter</label>
       <select name="headquarter" id="headquarter">
         <?php
-        $sql = "SELECT * FROM headquarters";
+        $__results = dbQuery("SELECT * FROM headquarters");
 
-        $results = dbQuery($sql);
+        while ($_row = mysqli_fetch_object($__results)) {
+          $selected = isset($row->headquarter) && $_row->id == $row->headquarter ? 'selected' : '';
 
-        while ($_row = mysqli_fetch_object($results)) {
+          echo "<option value='$_row->id' $selected>$_row->name</option>";
+        }
         ?>
-          <option value="<?php echo $_row->id ?>"><?php echo $_row->name ?></option>
-        <?php } ?>
       </select>
 
-      <input type="submit" name="submit" value="Create Formation Program">
+      <div class="form_actions">
+        <?php echo isset($_GET['put']) ?
+          '<input type="submit" name="submit" value="Edit Formation Program"><input onclick="cancel(\'formation_programs\')" type="button" value="Cancel">'
+          :
+          '<input type="submit" name="submit" value="Create Formation Program">'
+        ?>
+      </div>
     </form>
 
     <div class="table">
@@ -90,7 +114,7 @@
         <div class="header">Actions</div>
 
         <?php
-        $result = dbQuery("SELECT *, fp.name AS formation_program_name, u.name AS instructor, c.name AS course, h.name AS headquarter FROM formation_programs AS fp JOIN users AS u ON fp.instructor = u.id JOIN courses AS c ON fp.course = c.id JOIN headquarters AS h ON fp.headquarter = h.id");
+        $result = dbQuery("SELECT *, fp.id AS id, fp.name AS formation_program_name, u.name AS instructor, c.name AS course, h.name AS headquarter FROM formation_programs AS fp JOIN users AS u ON fp.instructor = u.id JOIN courses AS c ON fp.course = c.id JOIN headquarters AS h ON fp.headquarter = h.id");
 
         while ($row = mysqli_fetch_object($result)) {
         ?>

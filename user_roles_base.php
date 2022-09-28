@@ -1,3 +1,7 @@
+<?php
+$table = 'user_roles_base';
+?>
+
 <!DOCTYPE html>
 <html lang="es-CO">
 
@@ -7,7 +11,7 @@
   include("./php/function.php");
   ?>
 
-  <title></title>
+  <title>User Roles Base</title>
 </head>
 
 <body>
@@ -15,37 +19,57 @@
   include("./modules/nav.php");
   ?>
 
-  <?php
-  if (isset($_GET['id'])) {
-    if (isset($_GET['delete'])) {
-      delete('user_roles_base', 'id', $_GET['id']);
-    }
-  }
-  ?>
-
   <main class="main">
     <?php
+    if (isset($_GET['put'])) {
+      $id = $_GET['id'];
+      selectId($table, 'id', $id);
+    }
+    ?>
+
+    <?php
+    if (isset($_GET['id'])) {
+      if (isset($_GET['delete'])) {
+        delete($table, 'id', $_GET['id']);
+      }
+    }
+    ?>
+
+    <?php
     if (isset($_POST['submit'])) {
-      $field = array("name" => $_POST['name']);
+      if (isset($_GET['put'])) {
+        $id = $_GET['id'];
+        $field = array("id" => $id, "name" => $_POST['name']);
 
-      $tbl = "user_roles_base";
+        modify("user_roles_base", $field, 'id', $id);
 
-      insert($tbl, $field);
+        header("Location: users");
+      } else {
+        $field = array("name" => $_POST['name']);
+
+        insert("user_roles_base", $field);
+      }
     }
     ?>
 
     <form action="" method="post">
       <label for="name">Name</label>
-      <input type="text" name="name" id="name" placeholder="Admin">
+      <input type="text" name="name" id="name" value="<?php echo isset($_GET['put']) ? $row->name : ''; ?>" placeholder="Admin">
 
-      <input type="submit" name="submit" value="Create user role">
+      <div class="form_actions">
+        <?php echo isset($_GET['put']) ?
+          '<input type="submit" name="submit" value="Edit user role"><input onclick="cancel(\'user_roles_base\')" type="button" value="Cancel">'
+          :
+          '<input type="submit" name="submit" value="Create user role">'
+        ?>
+      </div>
     </form>
 
     <div class="table">
       <div class="body c3">
-        <div>#</div>
-        <div>Name</div>
-        <div>Actions</div>
+        <div class="header">#</div>
+        <div class="header">Name</div>
+        <div class="header">Actions</div>
 
         <?php
         $sql = "SELECT * FROM user_roles_base";
