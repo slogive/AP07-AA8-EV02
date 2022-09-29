@@ -347,8 +347,17 @@ template {
     border-radius: 0 0 8px 8px;
   }
 }
+.nav .logo {
+  display: grid;
+  align-items: center;
+}
 .nav .logo h2 {
   margin: 0;
+}
+@media screen and (max-width: 768px) {
+  .nav .logo h2 {
+    padding: var(--measure);
+  }
 }
 .nav .logo h2 a {
   text-decoration: none;
